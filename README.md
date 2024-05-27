@@ -2,15 +2,8 @@
 
 An advanced translator app that allows users to translate text and maintain a history of their translations. Powered by Flutter.
 
-## Getting Started
+## Figma Mockups
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Mockup 1](mockups/Home.png)
+![Mockup 2](mockups/History.png)
+![Mockup 3](mockups/Account.png)
