@@ -1,0 +1,165 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../controllers/translation_controller.dart';
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final TextEditingController _textController = TextEditingController();
+  String _translatedText = '';
+  bool _isLoading = false;
+  String _error = '';
+  String _fromLanguage = 'en';
+  String _toLanguage = 'ru';
+
+  @override
+  Widget build(BuildContext context) {
+    final translationController = Provider.of<TranslationController>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('TransLingo'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF1C1C3A), Color(0xFF2E2E48)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SizedBox(height: 80), // For spacing from AppBar
+            Container(
+              decoration: BoxDecoration(
+                color: Color(0xFF2E2E48),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: _fromLanguage,
+                      items: translationController.languages.entries
+                          .map((entry) => DropdownMenuItem<String>(
+                        value: entry.key,
+                        child: Text(entry.value, style: TextStyle(color: Colors.white)),
+                      ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _fromLanguage = value!;
+                        });
+                      },
+                      dropdownColor: Color(0xFF2E2E48),
+                      underline: Container(),
+                      isExpanded: true,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.swap_horiz, color: Colors.green),
+                    onPressed: () {
+                      setState(() {
+                        final temp = _fromLanguage;
+                        _fromLanguage = _toLanguage;
+                        _toLanguage = temp;
+                      });
+                    },
+                  ),
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: _toLanguage,
+                      items: translationController.languages.entries
+                          .map((entry) => DropdownMenuItem<String>(
+                        value: entry.key,
+                        child: Text(entry.value, style: TextStyle(color: Colors.white)),
+                      ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _toLanguage = value!;
+                        });
+                      },
+                      dropdownColor: Color(0xFF2E2E48),
+                      underline: Container(),
+                      isExpanded: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _textController,
+              decoration: InputDecoration(
+                labelText: 'Enter text',
+                labelStyle: TextStyle(color: Colors.white),
+                errorText: _error.isNotEmpty ? _error : null,
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.green),
+                ),
+              ),
+              style: TextStyle(color: Colors.white),
+            ),
+            SizedBox(height: 20),
+            if (_isLoading)
+              CircularProgressIndicator()
+            else
+              ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    _isLoading = true;
+                    _error = '';
+                  });
+                  try {
+                    final translation = await translationController.translate(_textController.text, _fromLanguage, _toLanguage);
+                    setState(() {
+                      _translatedText = translation.translatedText;
+                    });
+                  } catch (e) {
+                    setState(() {
+                      _error = e.toString();
+                    });
+                  } finally {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
+                },
+                child: Text('Translate'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color(0xFF2E2E48),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white),
+              ),
+              child: Text(
+                _translatedText,
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
