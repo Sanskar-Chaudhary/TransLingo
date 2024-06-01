@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controllers/translation_controller.dart';
 
 class HistoryPage extends StatelessWidget {
@@ -29,15 +30,32 @@ class HistoryPage extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: translationController.translations.isEmpty
-            ? Center(child: Text('No translations yet.', style: TextStyle(color: Colors.white)))
-            : ListView.builder(
-          itemCount: translationController.translations.length,
-          itemBuilder: (context, index) {
-            final translation = translationController.translations[index];
-            return ListTile(
-              title: Text(translation.originalText, style: TextStyle(color: Colors.white)),
-              subtitle: Text(translation.translatedText, style: TextStyle(color: Colors.white)),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('translations').orderBy('timestamp', descending: true).snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(child: Text('Error fetching translations'));
+            }
+
+            final translations = snapshot.data?.docs ?? [];
+
+            if (translations.isEmpty) {
+              return Center(child: Text('No translations yet.', style: TextStyle(color: Colors.white)));
+            }
+
+            return ListView.builder(
+              itemCount: translations.length,
+              itemBuilder: (context, index) {
+                final translation = translations[index];
+                return ListTile(
+                  title: Text(translation['originalText'], style: TextStyle(color: Colors.white)),
+                  subtitle: Text(translation['translatedText'], style: TextStyle(color: Colors.white)),
+                );
+              },
             );
           },
         ),

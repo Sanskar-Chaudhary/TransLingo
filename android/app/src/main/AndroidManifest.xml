@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="translingo"
-        android:name="${applicationName}"
+        android:name="androidx.multidex.MultiDexApplication"
+        android:label="your_app_name"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

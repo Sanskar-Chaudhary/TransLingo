@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "337565598635",
+    "project_id": "translingo-eb702",
+    "storage_bucket": "translingo-eb702.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:337565598635:android:dda02d13e8e0745f2108ee",
+        "android_client_info": {
+          "package_name": "com.mainor.translator.translingo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtaqwPqoSwRjpM6vDF4VYCJcxyYdIrL0U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/translation.dart';
 
@@ -22,30 +22,29 @@ class TranslationController with ChangeNotifier {
   }
 
   Future<void> loadTranslations() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? translationsData = prefs.getString('translations');
-    if (translationsData != null) {
-      _translations = (jsonDecode(translationsData) as List)
-          .map((item) => Translation.fromJson(item))
-          .toList();
-      notifyListeners();
-    }
+    final snapshots = await FirebaseFirestore.instance.collection('translations').orderBy('timestamp', descending: true).get();
+    _translations = snapshots.docs.map((doc) => Translation.fromJson(doc.data())).toList();
+    notifyListeners();
   }
 
   Future<void> addTranslation(Translation translation) async {
     _translations.add(translation);
     notifyListeners();
 
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('translations', jsonEncode(_translations.map((e) => e.toJson()).toList()));
+    await FirebaseFirestore.instance.collection('translations').add({
+      'originalText': translation.originalText,
+      'translatedText': translation.translatedText,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> clearHistory() async {
+    final snapshots = await FirebaseFirestore.instance.collection('translations').get();
+    for (var doc in snapshots.docs) {
+      await FirebaseFirestore.instance.collection('translations').doc(doc.id).delete();
+    }
     _translations.clear();
     notifyListeners();
-
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove('translations');
   }
 
   Future<Translation> translate(String text, String from, String to) async {
